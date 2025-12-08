@@ -1,0 +1,20 @@
+services:
+  image_verifier:
+    healthcheck:
+      method: GET
+      url: "http://localhost:8000/healthz"
+
+    endpoint_verify:
+      method: POST
+      url: "http://localhost:5000/verify"
+
+pp2_roster:
+  - name: "Ana Perez"
+    endpoint_verify: "http://localhost:5000/verify"
+    threshold: 0.75
+    active: true
+
+  - name: "Luis Soto"
+    endpoint_verify: "http://localhost:5000/verify"
+    threshold: 0.75
+    active: true
