@@ -1,0 +1,117 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pp3",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "fbea6490-b9f4-476a-a533-0637db3f8f90",
+      "name": "Webhook PP3",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "pp3"
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{\n  json: {\n    image: $json.image,\n    roster: [\n      { name: \"Ana Perez\", url: \"http://localhost:5001/verify\" },\n      { name: \"Luis Soto\", url: \"http://localhost:5002/verify\" }\n    ]\n  }\n}];"
+      },
+      "id": "8aaf8a64-58d0-4caa-bfe6-b30b59ac7f81",
+      "name": "Prepare Fan-Out",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        288,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "c4fdd47b-4c39-42c0-9c0f-7e33f45a44e3",
+      "name": "Split Roster",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        544,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$json.url}}",
+        "jsonParameters": true,
+        "options": {}
+      },
+      "id": "7364a772-1d60-48d0-b09e-34d3c5af146c",
+      "name": "Call PP2 Verifier",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const tau = 0.75;\nconst delta = 0.15;\n\nconst results = items.map(i => i.json);\nresults.sort((a, b) => b.score - a.score);\n\nconst best = results[0];\nconst second = results[1] || { score: 0 };\n\nconst identified = (best.score >= tau) && (best.score - second.score >= delta);\n\nreturn [{\n  json: {\n    identified,\n    best_match: best.name,\n    score: best.score,\n    all_scores: results\n  }\n}];"
+      },
+      "id": "b5aee182-b847-4de0-a407-7e07e662593b",
+      "name": "Merge Tau/Delta",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "access_logs",
+        "fields": "json",
+        "options": {}
+      },
+      "id": "90c63a2f-8062-4751-9b55-ef6d8f92d318",
+      "name": "MongoDB Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4db29602-2a41-43bf-ab78-dcd0c403f2d5",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "meta": {
+    "instanceId": "ff2ae389363d8b36ddb00f4c110bd13711e400c1c18a9e54ba29a1d09ebd200b"
+  },
+  "tags": []
+}
