@@ -9,6 +9,7 @@ from orchestrator.pp2_client import verify_all
 from orchestrator.pp1_client import ask_rag
 from orchestrator.fuse import fuse_verifications
 from db.mongo import get_db
+from db.queries import metrics_decisions
 
 app = FastAPI()
 # Load roster
@@ -78,3 +79,7 @@ async def healthz():
         return {"status":"ok","pp2_count": len(ROSTER)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/metrics/decisions")
+async def metrics_decisions_endpoint(days:int = 7):
+    return await metrics_decisions(days)
