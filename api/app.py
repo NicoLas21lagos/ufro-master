@@ -83,3 +83,20 @@ async def healthz():
 @app.get("/metrics/decisions")
 async def metrics_decisions_endpoint(days:int = 7):
     return await metrics_decisions(days)
+
+
+@app.get("/metrics/summary")
+async def metrics_summary(days: int = 7, category: str | None = None):
+    """
+    Métricas generales del sistema
+    """
+    try:
+        metrics = await get_metrics("summary", days, category=category)
+        return {
+            "days": days,
+            "category": category,
+            "metrics": metrics
+        }
+
+    except Exception as e:
+        return {"error": f"No se pudieron obtener métricas: {str(e)}"}, 500
